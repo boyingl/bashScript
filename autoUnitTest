@@ -1,0 +1,63 @@
+#!/bin/bash  
+
+#check # of argu
+usage(){
+  echo "please input 2 arguments:"
+  echo "the first one is the test stem file,"
+  echo "the second one is the program name"
+  exit 1
+}
+#two arguments; line 10
+if [ ${#} -ne 2 ]; then
+  usage
+fi
+
+#check .in & .out exit and readable
+validIn(){
+  echo "check the input file generated from stem"
+  echo "it does not exit or is not readable"
+  exit 2
+} #line 20
+
+validOut(){
+  echo "check the output file generated from stem"
+  echo "it does not exit or is not readable"
+  exit 3
+}
+
+#get all stem,loop through each stem
+for i in $(cat ${1}); do
+ #line 30
+ #check .in& .out  validity
+  if [ ! -r ${i}.in ]; then
+    validIn
+  elif [ ! -r ${i}.out ]; then
+    validOut
+  fi
+
+  #create temp file, to be deleted
+  outputFileName=`mktemp /tmp/output.XXXXX`
+  
+  #run program .in > outputfile
+  ${2} < ${i}.in > ${outputFileName} 2>&1
+  #compare output & .out
+  diff ${i}.out ${outputFileName} > /dev/null 2>&1
+  #not the same
+  if [ ${?} -ne 0 ]; then
+    echo "Test failed: ${i}"
+    echo "Input:"
+    cat ${i}.in
+    echo "Expected:"
+    cat ${i}.out
+    echo "Actual:"
+    cat ${outputFileName}
+  fi
+  
+  #delete temp file
+  rm ${outputFileName}
+done
+exit 0
+
+
+
+
