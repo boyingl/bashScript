@@ -1,0 +1,26 @@
+#print all the names of all the files that contains its own name
+#!/bin/bash 
+#usage warning
+usage () {
+  echo "Usage: $0 does not take argument" 1>&2
+  exit 1
+}
+
+
+#check no argument
+if [ ${#} != "0" ]; then 
+  usage
+fi
+
+count=0
+for fileName in `ls -1 ./`; do  #`to execute ls
+#for element in list
+  grep -F ${fileName} ./${fileName} > /dev/null 2>&1 
+#2>&1, dump error msg as well
+  if [ ${?} = "0" ] ;then  #${} value gives string
+    count=$((1+${count})) #$(()) int arithmetic
+    echo ${fileName} 
+  fi
+done
+
+echo ${count}
